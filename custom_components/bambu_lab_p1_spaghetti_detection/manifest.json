@@ -1,0 +1,14 @@
+{
+  "domain": "bambu_lab_p1_spaghetti_detection",
+  "name": "Bambu Lab P1 - Spaghetti Detection",
+  "codeowners": [
+    "@nberktumer"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/nberktumer/ha-bambu-lab-p1-spaghetti-detection",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/nberktumer/ha-bambu-lab-p1-spaghetti-detection/issues",
+  "version": "1.0.0"
+}
+

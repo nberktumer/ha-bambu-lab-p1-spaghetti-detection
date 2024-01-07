@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv bashio
+
+declare ML_API_TOKEN
+declare PORT
+
+ML_API_TOKEN=$(bashio::config 'obico_api_secret')
+
+cd /app
+FLASK_APP=server.py venv/bin/gunicorn --bind "0.0.0.0:3333" --workers 1 wsgi:application

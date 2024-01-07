@@ -1,0 +1,448 @@
+blueprint:
+  name: Bambu Lab P1 - Spaghetti Detection
+  description: Bambu Lab P1 - Spaghetti Detection
+  domain: automation
+  input:
+    home_assistant_host:
+      name: Home Assistant Host
+      description: Home Assistant host
+      default: "http://192.168.1.123:8123"
+    obico_host:
+      name: Obico ML API Host
+      description: Obico ML API host
+      default: "http://192.168.1.123:3333"
+    obico_auth_token:
+      name: Obico ML API Auth Token
+      description: Obico ML API authentication token
+      default: "obico_api_secret"
+    auto_turn_on_light:
+      name: Automatically Turn On Printer Lights
+      description: Turns on printer lights before spaghetti detection operation
+      default: true
+      selector:
+        boolean:
+    notification_settings:
+      name: Notification Settings
+      description: Type of notification to send after detecting a failure
+      default: standard
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: Critical Notification
+              value: critical
+            - label: Standard Notification
+              value: standard
+            - label: None
+              value: none
+    failure_action:
+      name: On Failure Action
+      description: What to do after detecting a failure
+      default: pause
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: Pause
+              value: pause
+            - label: Stop
+              value: stop
+
+    printer_print_status_sensor:
+      name: Printer Print Status Sensor
+      description: Bambu Lab printer print status sensor
+      selector:
+        entity:
+          filter:
+            - integration: bambu_lab
+              domain: sensor
+              device_class: enum
+    printer_current_stage_sensor:
+      name: Printer Current Stage Sensor
+      description: Bambu Lab printer current stage sensor
+      selector:
+        entity:
+          filter:
+            - integration: bambu_lab
+              domain: sensor
+              device_class: enum
+    printer_camera_image:
+      name: Printer Camera Image Entity
+      description: Bambu Lab printer camera image entity
+      selector:
+        entity:
+          filter:
+            - integration: bambu_lab
+              domain: image
+    printer_pause_button:
+      name: Printer Pause Button Entity
+      description: Bambu Lab printer pause button entity
+      selector:
+        entity:
+          filter:
+            - integration: bambu_lab
+              domain: button
+    printer_resume_button:
+      name: Printer Resume Button Entity
+      description: Bambu Lab printer resume button entity
+      selector:
+        entity:
+          filter:
+            - integration: bambu_lab
+              domain: button
+    printer_stop_button:
+      name: Printer Stop Button Entity
+      description: Bambu Lab printer stop button entity
+      selector:
+        entity:
+          filter:
+            - integration: bambu_lab
+              domain: button
+    printer_chamber_light:
+      name: Printer Chamber Light
+      description: Bambu Lab printer chamber light
+      selector:
+        entity:
+          filter:
+            - integration: bambu_lab
+              domain: light
+
+variables:
+  HOME_ASSISTANT_HOST_VAR: !input home_assistant_host
+  PRINTER_CAMERA_IMG_VAR: !input printer_camera_image
+  FAILURE_ACTION_VAR: !input failure_action
+  NOTIFICATION_SETTINGS_VAR: !input notification_settings
+mode: single
+max_exceeded: silent
+trigger:
+  # Print start trigger
+  - platform: state
+    entity_id:
+      - !input printer_current_stage_sensor
+    to: printing
+    id: BAMBU_LAB_PRINTER_STAGE_CHANGE
+
+  # Notification action triggers
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: BAMBU_LAB_PAUSE_PRINTING
+    event_data:
+      action: BAMBU_LAB_PAUSE_PRINTING
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: BAMBU_LAB_RESUME_PRINTING
+    event_data:
+      action: BAMBU_LAB_RESUME_PRINTING
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: BAMBU_LAB_STOP_PRINTING
+    event_data:
+      action: BAMBU_LAB_STOP_PRINTING
+
+  # Camera frame change trigger
+  - platform: state
+    id: BAMBU_LAB_CAMERA_FRAME_CHANGE
+    entity_id:
+      - !input printer_camera_image
+condition: [ ]
+action:
+  - choose:
+      # Print start actions
+      - conditions:
+          - condition: trigger
+            id: BAMBU_LAB_PRINTER_STAGE_CHANGE
+        sequence:
+          - service: number.set_value
+            data:
+              value: 0
+            target:
+              entity_id:
+                - number.bambu_lab_p1_spaghetti_detection_current_frame_number
+                - number.bambu_lab_p1_spaghetti_detection_ewm_mean
+                - number.bambu_lab_p1_spaghetti_detection_rolling_mean_short
+          - if:
+              - condition: template
+                value_template: !input auto_turn_on_light
+            then:
+              - service: light.turn_on
+                target:
+                  entity_id:
+                    - !input printer_chamber_light
+          - if:
+              - condition: template
+                value_template: "{{ as_timestamp(now()) - as_timestamp(states(PRINTER_CAMERA_IMG_VAR)) >= 30 }}"
+            then:
+              - service: homeassistant.reload_config_entry
+                data: { }
+                target:
+                  entity_id: !input printer_camera_image
+
+      # Notification actions
+      - conditions:
+          - condition: trigger
+            id:
+              - BAMBU_LAB_PAUSE_PRINTING
+              - BAMBU_LAB_RESUME_PRINTING
+              - BAMBU_LAB_STOP_PRINTING
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id:
+                      - BAMBU_LAB_PAUSE_PRINTING
+                sequence:
+                  - service: button.press
+                    data: { }
+                    target:
+                      entity_id: !input printer_pause_button
+              - conditions:
+                  - condition: trigger
+                    id: BAMBU_LAB_RESUME_PRINTING
+                sequence:
+                  - service: button.press
+                    data: { }
+                    target:
+                      entity_id: !input printer_resume_button
+              - conditions:
+                  - condition: trigger
+                    id: BAMBU_LAB_STOP_PRINTING
+                sequence:
+                  - service: button.press
+                    data: { }
+                    target:
+                      entity_id: !input printer_stop_button
+
+      # Notification actions
+      - conditions:
+          - condition: trigger
+            id: BAMBU_LAB_CAMERA_FRAME_CHANGE
+        sequence:
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: !input printer_print_status_sensor
+                    state: running
+            then:
+              - stop: ""
+          - if:
+              - condition: template
+                value_template: !input auto_turn_on_light
+            then:
+              - service: light.turn_on
+                target:
+                  entity_id:
+                    - !input printer_chamber_light
+          - service: bambu_lab_p1_spaghetti_detection.predict
+            data:
+              obico_host: !input obico_host
+              obico_auth_token: !input obico_auth_token
+              image_url: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_IMG_VAR, 'entity_picture') }}"
+            response_variable: result
+
+          - service: number.set_value
+            data:
+              value: "{{ result.result.detections | map(attribute=1) | sum | float }}"
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_p_sum
+
+          - service: number.set_value
+            data:
+              value: "{{ states('number.bambu_lab_p1_spaghetti_detection_current_frame_number') | float + 1 }}"
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_current_frame_number
+
+          - service: number.set_value
+            data:
+              value: "{{ states('number.bambu_lab_p1_spaghetti_detection_lifetime_frame_number') | float + 1 }}"
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_lifetime_frame_number
+
+          - service: number.set_value
+            data:
+              value: "{{ (states('number.bambu_lab_p1_spaghetti_detection_p_sum') | float) * (2 / (12 + 1)) + (states('number.bambu_lab_p1_spaghetti_detection_ewm_mean') | float) * (1 - (2 / (12 + 1))) }}"
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_ewm_mean
+
+          - service: number.set_value
+            data:
+              value: "{{ (states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_short') | float) + ((states('number.bambu_lab_p1_spaghetti_detection_p_sum') | float) - (states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_short') | float)) / (310 if 310 <= (states('number.bambu_lab_p1_spaghetti_detection_current_frame_number') | float) else (states('number.bambu_lab_p1_spaghetti_detection_current_frame_number') | float) + 1) }}"
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_rolling_mean_short
+
+          - service: number.set_value
+            data:
+              value: "{{ (states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_long') | float) + ((states('number.bambu_lab_p1_spaghetti_detection_p_sum') | float) - (states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_long') | float)) / (7200 if 7200 <= (states('number.bambu_lab_p1_spaghetti_detection_lifetime_frame_number') | float) else (states('number.bambu_lab_p1_spaghetti_detection_lifetime_frame_number') | float) + 1) }}"
+              entity_id: number.bambu_lab_p1_spaghetti_detection_rolling_mean_long
+
+          - if:
+              - condition: numeric_state
+                entity_id: number.bambu_lab_p1_spaghetti_detection_current_frame_number
+                below: 30
+            then:
+              - stop: ""
+            alias: if current_frame_num < 30
+
+          - service: number.set_value
+            data:
+              value: >-
+                {{ (states('number.bambu_lab_p1_spaghetti_detection_ewm_mean') | float) - (states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_long') | float) }}
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_adjusted_ewm_mean
+
+          - service: number.set_value
+            data:
+              value: >-
+                {{ ((states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_short') | float) - (states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_long') | float)) * 3.8 }}
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_rolling_mean_diff
+
+          - service: number.set_value
+            data:
+              value: >-
+                {{ min(0.78, max(0.33, (states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_diff') | float))) }}
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_thresh_warning
+
+          - service: number.set_value
+            data:
+              value: >-
+                {{ (states('number.bambu_lab_p1_spaghetti_detection_thresh_warning') | float) * 1.75 }}
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_thresh_failure
+
+          - service: number.set_value
+            data:
+              value: >-
+                {{ (states('number.bambu_lab_p1_spaghetti_detection_ewm_mean') | float) - (states('number.bambu_lab_p1_spaghetti_detection_rolling_mean_long') | float) }}
+            target:
+              entity_id: number.bambu_lab_p1_spaghetti_detection_p
+
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: number.bambu_lab_p1_spaghetti_detection_p
+                    above: number.bambu_lab_p1_spaghetti_detection_thresh_failure
+                sequence:
+                  - service: number.set_value
+                    data:
+                      value: >-
+                        {{ min(1.0, max(2.0 / 3.0, ((((states('number.bambu_lab_p1_spaghetti_detection_p') | float) - (states('number.bambu_lab_p1_spaghetti_detection_thresh_failure') | float)) * (1.0 - 2.0 / 3.0)) / ((states('number.bambu_lab_p1_spaghetti_detection_thresh_failure') | float) * 1.5 - (states('number.bambu_lab_p1_spaghetti_detection_thresh_failure') | float))) + 2.0 / 3.0)) }}
+                    target:
+                      entity_id: number.bambu_lab_p1_spaghetti_detection_normalized_p
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: number.bambu_lab_p1_spaghetti_detection_p
+                    above: number.bambu_lab_p1_spaghetti_detection_thresh_warning
+                sequence:
+                  - service: number.set_value
+                    data:
+                      value: >-
+                        {{ min(2.0 / 3.0, max(1.0 / 3.0, ((((states('number.bambu_lab_p1_spaghetti_detection_p') | float) - (states('number.bambu_lab_p1_spaghetti_detection_thresh_warning') | float)) * (2.0 / 3.0 - 1.0 / 3.0)) / ((states('number.bambu_lab_p1_spaghetti_detection_thresh_failure') | float) - (states('number.bambu_lab_p1_spaghetti_detection_thresh_warning') | float))) + 1.0 / 3.0)) }}
+                    target:
+                      entity_id: number.bambu_lab_p1_spaghetti_detection_normalized_p
+            default:
+              - service: number.set_value
+                data:
+                  value: >-
+                    {{ min(1.0 / 3.0, max(0, ((states('number.bambu_lab_p1_spaghetti_detection_p') | float) * 1.0 / 3.0) / (states('number.bambu_lab_p1_spaghetti_detection_thresh_warning') | float))) }}
+                target:
+                  entity_id: number.bambu_lab_p1_spaghetti_detection_normalized_p
+
+          # if adjusted_ewm_mean < THRESHOLD_LOW
+          - if:
+              - condition: numeric_state
+                entity_id: number.bambu_lab_p1_spaghetti_detection_adjusted_ewm_mean
+                below: 0.38
+            then:
+              - stop: ""
+
+          #  if adjusted_ewm_mean <= THRESHOLD_HIGH and adjusted_ewm_mean <= rolling_mean_diff
+          - if:
+              - condition: and
+                conditions:
+                  - condition: numeric_state
+                    entity_id: number.bambu_lab_p1_spaghetti_detection_adjusted_ewm_mean
+                    below: 0.78
+                  - condition: numeric_state
+                    entity_id: number.bambu_lab_p1_spaghetti_detection_adjusted_ewm_mean
+                    below: number.bambu_lab_p1_spaghetti_detection_rolling_mean_diff
+            then:
+              - stop: ""
+
+          # if now() - last_notify_time < 1min
+          - if:
+              - condition: template
+                value_template: >-
+                  {{ now() - states('datetime.bambu_lab_p1_spaghetti_detection_last_notify_time') | as_datetime | as_local < timedelta(minutes=1) }}
+            then:
+              - stop: ""
+            alias: >-
+              if now() - last_notify_time < 1min
+
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ FAILURE_ACTION_VAR == 'pause' }}"
+                sequence:
+                  - service: button.press
+                    data: { }
+                    target:
+                      entity_id: !input printer_pause_button
+              - conditions:
+                  - condition: template
+                    value_template: "{{ FAILURE_ACTION_VAR == 'stop' }}"
+                sequence:
+                  - service: button.press
+                    data: { }
+                    target:
+                      entity_id: !input printer_stop_button
+
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ NOTIFICATION_SETTINGS_VAR == 'critical' }}"
+                sequence:
+                  - service: notify.notify
+                    data:
+                      title: "Bambu Lab P1 - Spaghetti Detected"
+                      message: "Confidence: {{ (states('number.bambu_lab_p1_spaghetti_detection_normalized_p') | float * 100) | int }}%"
+                      data:
+                        image: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_IMG_VAR, 'entity_picture') }}"
+                        ttl: 0
+                        priority: high
+                        channel: alarm_stream
+                        push:
+                          sound:
+                            name: default
+                            critical: 1
+                            volume: 0.75
+                        actions:
+                          - action: BAMBU_LAB_RESUME_PRINTING
+                            title: Resume Printing
+                          - action: BAMBU_LAB_STOP_PRINTING
+                            title: Stop Printing
+              - conditions:
+                  - condition: template
+                    value_template: "{{ NOTIFICATION_SETTINGS_VAR == 'standard' }}"
+                sequence:
+                  - service: notify.notify
+                    data:
+                      title: "Bambu Lab P1 - Spaghetti Detected"
+                      message: "Confidence: {{ (states('number.bambu_lab_p1_spaghetti_detection_normalized_p') | float * 100) | int }}%"
+                      data:
+                        image: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_IMG_VAR, 'entity_picture') }}"
+                        actions:
+                          - action: BAMBU_LAB_RESUME_PRINTING
+                            title: Resume Printing
+                          - action: BAMBU_LAB_STOP_PRINTING
+                            title: Stop Printing
+
+          - service: datetime.set_value
+            data:
+              datetime: >-
+                {{ now() }}
+            target:
+              entity_id: datetime.bambu_lab_p1_spaghetti_detection_last_notify_time
+
+
