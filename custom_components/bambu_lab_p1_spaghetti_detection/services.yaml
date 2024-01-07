@@ -1,0 +1,16 @@
+bambu_lab_p1_spaghetti_detection:
+  predict:
+    description: "Perform spaghetti detection."
+    fields:
+      obico_host:
+        description: "Obico ML Server URL."
+        example: "http://192.168.1.123:3333"
+        required: true
+      obico_auth_token:
+        description: "Obico ML Server authentication token."
+        example: "obico_api_secret"
+        required: true
+      image_url:
+        description: "URL of the image for spaghetti detection."
+        example: "https://your-image-url.jpg"
+        required: true
