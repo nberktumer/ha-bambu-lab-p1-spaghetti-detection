@@ -1,0 +1,22 @@
+{
+  "services": {
+    "predict": {
+      "name": "Predict Spaghetti",
+      "description": "Runs the Obico ML model whether the given image has spaghetti",
+      "fields": {
+        "obico_host": {
+          "name": "Obico ML API Host",
+          "description": "Obico ML API host"
+        },
+        "obico_auth_token": {
+          "name": "Obico ML API Auth Token",
+          "description": "Obico ML API authentication token"
+        },
+        "image_url": {
+          "name": "Image URL",
+          "description": "Image URL"
+        }
+      }
+    }
+  }
+}
