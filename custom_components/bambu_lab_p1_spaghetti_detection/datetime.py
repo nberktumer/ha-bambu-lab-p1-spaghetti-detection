@@ -5,7 +5,7 @@ from homeassistant.components.datetime import DateTimeEntity, DateTimeEntityDesc
 DATETIME_TYPES: tuple[DateTimeEntityDescription, ...] = (
     DateTimeEntityDescription(
         key="last_notify_time",
-        name="Last Notify Time"
+        name="Spaghetti Detection - Last Notify Time"
     ),
 )
 
@@ -20,7 +20,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 class BambuLabP1SpaghettiDetectionDateTimeEntity(DateTimeEntity):
     def __init__(self, entity_description):
-        entity_description.name = "Spaghetti Detection - %s" % entity_description.name
         self.entity_description = entity_description
 
         self.entity_id = "number.bambu_lab_p1_spaghetti_detection_%s" % entity_description.key

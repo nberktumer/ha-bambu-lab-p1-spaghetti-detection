@@ -3,82 +3,82 @@ from homeassistant.components.number import NumberEntity, NumberEntityDescriptio
 NUMBER_TYPES: tuple[NumberEntityDescription, ...] = (
     NumberEntityDescription(
         key="current_frame_number",
-        name="Current Frame Number",
+        name="Spaghetti Detection - Current Frame Number",
         native_min_value=0,
         native_max_value=10000000000000000
     ),
     NumberEntityDescription(
         key="lifetime_frame_number",
-        name="Lifetime Frame Number",
+        name="Spaghetti Detection - Lifetime Frame Number",
         native_min_value=0,
         native_max_value=10000000000000000
     ),
     NumberEntityDescription(
         key="ewm_mean",
-        name="EWM Mean",
+        name="Spaghetti Detection - EWM Mean",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="adjusted_ewm_mean",
-        name="Adjusted EWM Mean",
+        name="Spaghetti Detection - Adjusted EWM Mean",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="p",
-        name="P",
+        name="Spaghetti Detection - P",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="normalized_p",
-        name="Normalized P",
+        name="Spaghetti Detection - Normalized P",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="p_sum",
-        name="P Sum",
+        name="Spaghetti Detection - P Sum",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="rolling_mean_diff",
-        name="Rolling Mean Diff",
+        name="Spaghetti Detection - Rolling Mean Diff",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="rolling_mean_long",
-        name="Rolling Mean Long",
+        name="Spaghetti Detection - Rolling Mean Long",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="rolling_mean_short",
-        name="Rolling Mean Short",
+        name="Spaghetti Detection - Rolling Mean Short",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="thresh_warning",
-        name="Thresh Warning",
+        name="Spaghetti Detection - Thresh Warning",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
     ),
     NumberEntityDescription(
         key="thresh_failure",
-        name="Thresh Failure",
+        name="Spaghetti Detection - Thresh Failure",
         native_min_value=-1000000000000000,
         native_max_value=10000000000000000,
         native_step=0.000000001
@@ -96,7 +96,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 class BambuLabP1SpaghettiDetectionNumberEntity(NumberEntity):
     def __init__(self, entity_description):
-        entity_description.name = "Spaghetti Detection - %s" % entity_description.name
         self.entity_description = entity_description
 
         self.entity_id = "number.bambu_lab_p1_spaghetti_detection_%s" % entity_description.key
