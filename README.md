@@ -5,6 +5,8 @@ integration leverages the power of both the [Bambu Lab Integration](https://gith
 the [Obico](https://www.obico.io) ML server, providing a solution for detecting and handling spaghetti incidents during
 your prints.
 
+If you like this automation and would like to support it, you can [buy me a coffee](https://www.patreon.com/nberk/shop).
+
 ## Features
 
 - **Spaghetti Detection:** Utilize Obico's machine learning server to identify and prevent spaghetti issues.
