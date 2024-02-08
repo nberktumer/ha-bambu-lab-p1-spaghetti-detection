@@ -78,6 +78,22 @@ To install Obico ML server as a Home Assistant Add-on you have 2 options:
 
        docker start ha_bambu_lab_p1_spaghetti_detection
 
+### Install Obico ML Server as a Standalone Docker Container using docker compose
+
+1. Download the docker-compose.yaml from the repository
+
+2. Edit the environment variables section in the docker compose yaml:
+
+      ```
+      environment:
+        - ML_API_TOKEN=obico_api_secret
+        - TZ=Europe/Ljubljana
+      ```
+
+3. Run the command:
+
+       docker compose up -d
+
 ## 2. Install Home Assistant Integration
 
 ### HACS
