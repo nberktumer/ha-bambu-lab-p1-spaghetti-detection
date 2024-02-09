@@ -35,6 +35,10 @@ blueprint:
               value: standard
             - label: None
               value: none
+    notification_service:
+      name: Notification Service
+      description: Notification service used to sent messages
+      default: notify.notify
     failure_action:
       name: On Failure Action
       description: What to do after detecting a failure
@@ -112,6 +116,7 @@ variables:
   PRINTER_CAMERA_IMG_VAR: !input printer_camera_image
   FAILURE_ACTION_VAR: !input failure_action
   NOTIFICATION_SETTINGS_VAR: !input notification_settings
+  NOTIFICATION_SERVICE_VAR: !input notification_service
 mode: single
 max_exceeded: silent
 trigger:
@@ -403,7 +408,7 @@ action:
                   - condition: template
                     value_template: "{{ NOTIFICATION_SETTINGS_VAR == 'critical' }}"
                 sequence:
-                  - service: notify.notify
+                  - service: "{{ NOTIFICATION_SERVICE_VAR }}"
                     data:
                       title: "Bambu Lab P1 - Spaghetti Detected"
                       message: "Confidence: {{ (states('number.bambu_lab_p1_spaghetti_detection_normalized_p') | float * 100) | int }}%"
@@ -426,7 +431,7 @@ action:
                   - condition: template
                     value_template: "{{ NOTIFICATION_SETTINGS_VAR == 'standard' }}"
                 sequence:
-                  - service: notify.notify
+                  - service: "{{ NOTIFICATION_SERVICE_VAR }}"
                     data:
                       title: "Bambu Lab P1 - Spaghetti Detected"
                       message: "Confidence: {{ (states('number.bambu_lab_p1_spaghetti_detection_normalized_p') | float * 100) | int }}%"
