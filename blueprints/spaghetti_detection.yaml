@@ -47,7 +47,14 @@ blueprint:
               value: pause
             - label: Stop
               value: stop
-
+    notification_service:
+      name: Mobile devices notification service
+      description: >-
+        The notification service for mobile devices (eg. notify.mobile_app_<your_device_id_here>).
+        You can provide both a notify group or a single notify device here.
+      default: notify.notify
+      selector:
+        text:
     printer_print_status_sensor:
       name: Printer Print Status Sensor
       description: Bambu Lab printer print status sensor
@@ -403,7 +410,7 @@ action:
                   - condition: template
                     value_template: "{{ NOTIFICATION_SETTINGS_VAR == 'critical' }}"
                 sequence:
-                  - service: notify.notify
+                  - service: !input notification_service
                     data:
                       title: "Bambu Lab P1 - Spaghetti Detected"
                       message: "Confidence: {{ (states('number.bambu_lab_p1_spaghetti_detection_normalized_p') | float * 100) | int }}%"
@@ -426,7 +433,7 @@ action:
                   - condition: template
                     value_template: "{{ NOTIFICATION_SETTINGS_VAR == 'standard' }}"
                 sequence:
-                  - service: notify.notify
+                  - service: !input notification_service
                     data:
                       title: "Bambu Lab P1 - Spaghetti Detected"
                       message: "Confidence: {{ (states('number.bambu_lab_p1_spaghetti_detection_normalized_p') | float * 100) | int }}%"

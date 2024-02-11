@@ -63,7 +63,9 @@ To install Obico ML server as a Home Assistant Add-on you have 2 options:
 
        https://github.com/nberktumer/ha-bambu-lab-p1-spaghetti-detection
 
-### Install Obico ML Server as a Standalone Docker Container
+### Install Obico ML Server standalone using one of the following two options
+
+#### Install Obico ML Server as a Standalone Docker Container
 
 1. Create docker container using the following command:
 
@@ -77,6 +79,22 @@ To install Obico ML server as a Home Assistant Add-on you have 2 options:
 2. Start the container using the following command:
 
        docker start ha_bambu_lab_p1_spaghetti_detection
+
+#### Install Obico ML Server as a Standalone Docker Container using docker compose
+
+1. Download the docker-compose.yaml from the repository
+
+2. Edit the environment variables section in the docker compose yaml:
+
+      ```
+      environment:
+        - ML_API_TOKEN=obico_api_secret
+        - TZ=Europe/Ljubljana
+      ```
+
+3. Run the command:
+
+       docker compose up -d
 
 ## 2. Install Home Assistant Integration
 
@@ -112,6 +130,7 @@ restarting Home Assistant, add and configure the integration through the native 
 | **Obico ML API Host**       | The URL of the Obico ML Server. The default port number is `3333`. If you installed the ML server via the Home Assistant Addon, the IP address should match your Home Assistant address.                                                                                                                                                        |
 | **Obico ML API Auth Token** | The authentication token for the Obico ML Server. The default value is `obico_api_secret` and can be configured through the addon settings or the docker container create command.                                                                                                                                                              |
 | **Notification Settings**   | - **Critical Notification:** Generates an audible alert even when your device is in silent mode.<br/>- **Standard Notification:** Sends a traditional notification respecting your device's audio settings.<br/>- **None:** No notifications are sent in case of a failure.                                                                     |
+| **Notification Service**   | The notification service of your choice for selecting a single device or a group of devices, instead of alerting all mobile devices registered in home assistant. The default is `notify.notify`, which notifies all devices.                                                                     |
 
 
 ## Credits

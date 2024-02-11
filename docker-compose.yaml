@@ -1,0 +1,12 @@
+---
+version: "3"
+services:
+  ha_bambu_lab_p1_spaghetti_detection:
+    image: nberk/ha_bambu_lab_p1_spaghetti_detection_standalone:latest
+    container_name: ha_bambu_lab_p1_spaghetti_detection
+    restart: unless-stopped
+    ports:
+      - 3333:3333/tcp
+    environment:
+      - ML_API_TOKEN=obico_api_secret
+      - TZ=Europe/London
