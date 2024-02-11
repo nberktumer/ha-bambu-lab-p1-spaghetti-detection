@@ -63,9 +63,7 @@ To install Obico ML server as a Home Assistant Add-on you have 2 options:
 
        https://github.com/nberktumer/ha-bambu-lab-p1-spaghetti-detection
 
-### Install Obico ML Server standalone using one of the following two options
-
-#### Install Obico ML Server as a Standalone Docker Container
+### Install Obico ML Server as a Standalone Docker Container
 
 1. Create docker container using the following command:
 
@@ -80,7 +78,7 @@ To install Obico ML server as a Home Assistant Add-on you have 2 options:
 
        docker start ha_bambu_lab_p1_spaghetti_detection
 
-#### Install Obico ML Server as a Standalone Docker Container using docker compose
+### Install Obico ML Server as a Standalone Docker Container with Docker Compose
 
 1. Download the docker-compose.yaml from the repository
 
@@ -89,7 +87,7 @@ To install Obico ML server as a Home Assistant Add-on you have 2 options:
       ```
       environment:
         - ML_API_TOKEN=obico_api_secret
-        - TZ=Europe/Ljubljana
+        - TZ=Europe/London
       ```
 
 3. Run the command:
