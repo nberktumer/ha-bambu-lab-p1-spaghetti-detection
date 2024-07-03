@@ -167,6 +167,10 @@ action:
                 - number.bambu_lab_p1_spaghetti_detection_current_frame_number
                 - number.bambu_lab_p1_spaghetti_detection_ewm_mean
                 - number.bambu_lab_p1_spaghetti_detection_rolling_mean_short
+                - number.bambu_lab_p1_spaghetti_detection_rolling_mean_long
+                - number.bambu_lab_p1_spaghetti_detection_normalized_p
+                - number.bambu_lab_p1_spaghetti_detection_adjusted_ewm_mean
+                - number.bambu_lab_p1_spaghetti_detection_p_sum
           - if:
             - condition: and
               conditions:
@@ -459,13 +463,13 @@ action:
               value: 0
             target:
               entity_id:
-              - number.bambu_lab_p1_spaghetti_detection_current_frame_number
-              - number.bambu_lab_p1_spaghetti_detection_ewm_mean
-              - number.bambu_lab_p1_spaghetti_detection_rolling_mean_short
-              - number.bambu_lab_p1_spaghetti_detection_rolling_mean_long
-              - number.bambu_lab_p1_spaghetti_detection_normalized_p
-              - number.bambu_lab_p1_spaghetti_detection_adjusted_ewm_mean
-              - number.bambu_lab_p1_spaghetti_detection_p_sum
+                - number.bambu_lab_p1_spaghetti_detection_current_frame_number
+                - number.bambu_lab_p1_spaghetti_detection_ewm_mean
+                - number.bambu_lab_p1_spaghetti_detection_rolling_mean_short
+                - number.bambu_lab_p1_spaghetti_detection_rolling_mean_long
+                - number.bambu_lab_p1_spaghetti_detection_normalized_p
+                - number.bambu_lab_p1_spaghetti_detection_adjusted_ewm_mean
+                - number.bambu_lab_p1_spaghetti_detection_p_sum
           - service: datetime.set_value
             data:
               datetime: >-
