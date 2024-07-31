@@ -47,6 +47,8 @@ blueprint:
               value: pause
             - label: Stop
               value: stop
+            - label: Warn
+              value: warn
     notification_service:
       name: Mobile devices notification service
       description: >-

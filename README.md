@@ -11,29 +11,26 @@ If you like this automation and would like to support it, you can [buy me a coff
 
 - **Spaghetti Detection:** Utilize Obico's machine learning server to identify and prevent spaghetti issues.
 - **Critical/Standard Notifications:** Stay informed with customizable notifications.
-- **Pause/Cancel Print on Failure Detection:** Take proactive measures by automatically pausing or canceling print jobs
-  upon the detection of spaghetti-related failures, preventing wasted material and time.
+- **Warn/Pause/Cancel Print on Failure Detection:** Take proactive measures by automatically warning, pausing or canceling print jobs upon the detection of spaghetti-related failures, preventing wasted material and time.
 
 ## Prerequisites
 
 Ensure the following prerequisites are met before installing the Spaghetti Detection Integration:
 
 - [Bambu Lab Integration](https://github.com/greghesp/ha-bambulab) must be installed.
-- A server with at least 4GB of RAM that meets
-  the [Obico hardware requirements](https://www.obico.io/docs/server-guides/hardware-requirements/).
-
+- A server with at least 4GB of RAM that meets the [Obico hardware requirements](https://www.obico.io/docs/server-guides/hardware-requirements/).
 
 <br>
 
-> **_NOTE:_** The integration does not support the following devices:
+> **_NOTE:_** The integration does **not** support the following devices:
 
-| Device                   | Compatibility | 
-|--------------------------|---------------|
-| Raspberry Pi (Any Model) | ❌            |
-| Home Assistant Green     | ❌            |
-| Home Assistant Yellow    | ❌            |
-| Latte Panda              | ❌            |
-| Jetson Nano 2gb          | ❌            |
+| Device | Compatibility | 
+| ---- | ----- |
+| Raspberry Pi (Any Model) | ❌
+| Home Assistant Green | ❌
+| Home Assistant Yellow | ❌
+| Latte Panda | ❌
+| Jetson Nano 2gb | ❌
 
 ## Setup
 
@@ -122,13 +119,13 @@ restarting Home Assistant, add and configure the integration through the native 
 ### Blueprint Parameters
 
 
-| Parameter                   | Description                                                                                                                                                                                                                                                                                                                                     |
-|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Home Assistant Host**     | The address of your Home Assistant instance. Required for sending the printer camera image to the Obico ML server. Ensure to include your Home Assistant port. This address is also used for notification images. If you wish to view failure images on notifications outside your local network, provide a publicly accessible link here. |
-| **Obico ML API Host**       | The URL of the Obico ML Server. The default port number is `3333`. If you installed the ML server via the Home Assistant Addon, the IP address should match your Home Assistant address.                                                                                                                                                        |
-| **Obico ML API Auth Token** | The authentication token for the Obico ML Server. The default value is `obico_api_secret` and can be configured through the addon settings or the docker container create command.                                                                                                                                                              |
-| **Notification Settings**   | - **Critical Notification:** Generates an audible alert even when your device is in silent mode.<br/>- **Standard Notification:** Sends a traditional notification respecting your device's audio settings.<br/>- **None:** No notifications are sent in case of a failure.                                                                     |
-| **Notification Service**   | The notification service of your choice for selecting a single device or a group of devices, instead of alerting all mobile devices registered in home assistant. The default is `notify.notify`, which notifies all devices.                                                                     |
+| Parameter | Description |
+| ---- | ----- |
+| **Home Assistant Host** | The address of your Home Assistant instance. Required for sending the printer camera image to the Obico ML server. Ensure to include your Home Assistant port. This address is also used for notification images. If you wish to view failure images on notifications outside your local network, provide a publicly accessible link here.
+| **Obico ML API Host** | The URL of the Obico ML Server. The default port number is `3333`. If you installed the ML server via the Home Assistant Addon, the IP address should match your Home Assistant address.
+| **Obico ML API Auth Token** | The authentication token for the Obico ML Server. The default value is `obico_api_secret` and can be configured through the addon settings or the docker container create command.
+| **Notification Settings**   | - **Critical Notification:** Generates an audible alert even when your device is in silent mode.<br/>- **Standard Notification:** Sends a traditional notification respecting your device's audio settings.<br/>- **None:** No notifications are sent in case of a failure.
+| **Notification Service**  | The notification service of your choice for selecting a single device or a group of devices, instead of alerting all mobile devices registered in home assistant. The default is `notify.notify`, which notifies all devices.
 
 
 ## Credits
