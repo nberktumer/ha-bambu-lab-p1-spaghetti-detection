@@ -116,6 +116,8 @@ restarting Home Assistant, add and configure the integration through the native 
 
 ![Configure the automation](docs/images/blueprint_installation.png)
 
+3. **Important** If you are on version 2.0.22 or older, make sure that the value for "Printer Frame Refresh" is the image. For versions 2.0.23 and newer, this value should be a sensor, like the current layer of your printer.
+
 ### Blueprint Parameters
 
 
