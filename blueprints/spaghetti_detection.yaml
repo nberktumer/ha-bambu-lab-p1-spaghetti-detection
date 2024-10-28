@@ -82,7 +82,19 @@ blueprint:
         entity:
           filter:
             - integration: bambu_lab
-              domain: image
+              domain: 
+                - image
+                - camera
+    printer_frame:
+      name: Printer Frame Refresh
+      description: When the photo frame should be captured
+      selector:
+        entity:
+          filter:
+            - integration: bambu_lab
+              domain: 
+                - sensor
+                - image
     printer_pause_button:
       name: Printer Pause Button Entity
       description: Bambu Lab printer pause button entity
@@ -152,7 +164,7 @@ trigger:
   - platform: state
     id: BAMBU_LAB_CAMERA_FRAME_CHANGE
     entity_id:
-      - !input printer_camera_image
+      - !input printer_frame
 condition: [ ]
 action:
   - choose:
@@ -186,15 +198,20 @@ action:
                 target:
                   entity_id:
                     - !input printer_chamber_light
+
+          # Used to reload config in case camera freezes
           - if:
-              - condition: template
-                value_template: "{{ as_timestamp(now()) - as_timestamp(states(PRINTER_CAMERA_IMG_VAR)) >= 30 }}"
+              - condition: and
+                conditions: 
+                - condition: template
+                  value_template: "{{ as_timestamp(now()) - as_timestamp(states(PRINTER_CAMERA_IMG_VAR)) >= 30 }}"
+                - condition: template
+                  value_template: "{{ states[PRINTER_CAMERA_IMG_VAR].domain == 'image' }}" # For versions <= 2.0.22
             then:
               - service: homeassistant.reload_config_entry
                 data: { }
                 target:
                   entity_id: !input printer_camera_image
-
       # Notification actions
       - conditions:
           - condition: trigger
@@ -478,5 +495,3 @@ action:
                 {{ now() }}
             target:
               entity_id: datetime.bambu_lab_p1_spaghetti_detection_last_notify_time
-
-
