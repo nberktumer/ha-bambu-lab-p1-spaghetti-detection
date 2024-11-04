@@ -1,6 +1,6 @@
-# Bambu Lab P1 - Spaghetti Detection Integration
+# Bambu Lab - Spaghetti Detection Integration
 
-Upgrade your Bambu Lab P1 3D printer experience with the Home Assistant Spaghetti Detection Integration. This
+Upgrade your Bambu Lab 3D printer experience with the Home Assistant Spaghetti Detection Integration. This
 integration leverages the power of both the [Bambu Lab Integration](https://github.com/greghesp/ha-bambulab) and
 the [Obico](https://www.obico.io) ML server, providing a solution for detecting and handling spaghetti incidents during
 your prints.
@@ -12,6 +12,15 @@ If you like this automation and would like to support it, you can [buy me a coff
 - **Spaghetti Detection:** Utilize Obico's machine learning server to identify and prevent spaghetti issues.
 - **Critical/Standard Notifications:** Stay informed with customizable notifications.
 - **Warn/Pause/Cancel Print on Failure Detection:** Take proactive measures by automatically warning, pausing or canceling print jobs upon the detection of spaghetti-related failures, preventing wasted material and time.
+- **Third Party Camera Support:** Any camera entity can also be used for detecting failures.
+
+## Supported Printers
+| Device          | Compatibility | 
+|-----------------|---------------|
+| X1 Series       | ✔️          
+| P1 Series       | ✔️            
+| A1 Series       | ✔️             
+
 
 ## Prerequisites
 
