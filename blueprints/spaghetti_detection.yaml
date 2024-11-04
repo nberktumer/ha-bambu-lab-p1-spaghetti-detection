@@ -1,6 +1,6 @@
 blueprint:
-  name: Bambu Lab P1 - Spaghetti Detection
-  description: Bambu Lab P1 - Spaghetti Detection
+  name: Bambu Lab - Spaghetti Detection
+  description: Bambu Lab - Spaghetti Detection
   domain: automation
   input:
     home_assistant_host:
@@ -15,6 +15,16 @@ blueprint:
       name: Obico ML API Auth Token
       description: Obico ML API authentication token
       default: "obico_api_secret"
+    detection_frequency:
+      name: Detection Frequency
+      description: The detection algorithm will run in every defined seconds
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 60
+          mode: box
+          unit_of_measurement: seconds
     auto_turn_on_light:
       name: Automatically Turn On Printer Lights
       description: Turns on printer lights before spaghetti detection operation
@@ -75,14 +85,13 @@ blueprint:
             - integration: bambu_lab
               domain: sensor
               device_class: enum
-    printer_camera_image:
-      name: Printer Camera Image Entity
-      description: Bambu Lab printer camera image entity
+    printer_camera:
+      name: Printer Camera Entity
+      description: Bambu Lab printer camera entity
       selector:
         entity:
           filter:
-            - integration: bambu_lab
-              domain: image
+            - domain: camera
     printer_pause_button:
       name: Printer Pause Button Entity
       description: Bambu Lab printer pause button entity
@@ -118,12 +127,13 @@ blueprint:
 
 variables:
   HOME_ASSISTANT_HOST_VAR: !input home_assistant_host
-  PRINTER_CAMERA_IMG_VAR: !input printer_camera_image
+  PRINTER_CAMERA_VAR: !input printer_camera
   FAILURE_ACTION_VAR: !input failure_action
   NOTIFICATION_SETTINGS_VAR: !input notification_settings
+  DETECTION_FREQUENCY_VAR: !input detection_frequency
 mode: single
 max_exceeded: silent
-trigger:
+triggers:
   # Print start trigger
   - platform: state
     entity_id:
@@ -148,13 +158,12 @@ trigger:
     event_data:
       action: BAMBU_LAB_STOP_PRINTING
 
-  # Camera frame change trigger
-  - platform: state
-    id: BAMBU_LAB_CAMERA_FRAME_CHANGE
-    entity_id:
-      - !input printer_camera_image
+  # Detection trigger
+  - trigger: time_pattern
+    id: BAMBU_LAB_DETECTION_TRIGGER
+    seconds: /1
 condition: [ ]
-action:
+actions:
   - choose:
       # Print start actions
       - conditions:
@@ -186,14 +195,6 @@ action:
                 target:
                   entity_id:
                     - !input printer_chamber_light
-          - if:
-              - condition: template
-                value_template: "{{ as_timestamp(now()) - as_timestamp(states(PRINTER_CAMERA_IMG_VAR)) >= 30 }}"
-            then:
-              - service: homeassistant.reload_config_entry
-                data: { }
-                target:
-                  entity_id: !input printer_camera_image
 
       # Notification actions
       - conditions:
@@ -233,7 +234,7 @@ action:
       # Notification actions
       - conditions:
           - condition: trigger
-            id: BAMBU_LAB_CAMERA_FRAME_CHANGE
+            id: BAMBU_LAB_DETECTION_TRIGGER
         sequence:
           - if:
               - condition: not
@@ -241,6 +242,11 @@ action:
                   - condition: state
                     entity_id: !input printer_print_status_sensor
                     state: running
+            then:
+              - stop: ""
+          - if:
+              - condition: template
+                value_template: "{{ now().second % DETECTION_FREQUENCY_VAR > 0 }}"
             then:
               - stop: ""
           - if:
@@ -260,7 +266,7 @@ action:
             data:
               obico_host: !input obico_host
               obico_auth_token: !input obico_auth_token
-              image_url: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_IMG_VAR, 'entity_picture') }}"
+              image_url: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_VAR, 'entity_picture') }}"
             response_variable: result
 
           - service: number.set_value
@@ -428,10 +434,10 @@ action:
                 sequence:
                   - service: !input notification_service
                     data:
-                      title: "Bambu Lab P1 - Spaghetti Detected"
+                      title: "Bambu Lab - Spaghetti Detected"
                       message: "Confidence: {{ (states('number.bambu_lab_p1_spaghetti_detection_normalized_p') | float * 100) | int }}%"
                       data:
-                        image: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_IMG_VAR, 'entity_picture') }}"
+                        image: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_VAR, 'entity_picture') }}"
                         ttl: 0
                         priority: high
                         channel: alarm_stream
@@ -451,10 +457,10 @@ action:
                 sequence:
                   - service: !input notification_service
                     data:
-                      title: "Bambu Lab P1 - Spaghetti Detected"
+                      title: "Bambu Lab - Spaghetti Detected"
                       message: "Confidence: {{ (states('number.bambu_lab_p1_spaghetti_detection_normalized_p') | float * 100) | int }}%"
                       data:
-                        image: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_IMG_VAR, 'entity_picture') }}"
+                        image: "{{ HOME_ASSISTANT_HOST_VAR }}{{ state_attr(PRINTER_CAMERA_VAR, 'entity_picture') }}"
                         actions:
                           - action: BAMBU_LAB_RESUME_PRINTING
                             title: Resume Printing
