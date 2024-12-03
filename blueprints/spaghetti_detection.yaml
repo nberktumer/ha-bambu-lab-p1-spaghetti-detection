@@ -161,7 +161,7 @@ trigger:
   # Detection trigger
   - trigger: time_pattern
     id: BAMBU_LAB_DETECTION_TRIGGER
-    seconds: /1
+    seconds: !input detection_frequency
 condition: [ ]
 action:
   - choose:
