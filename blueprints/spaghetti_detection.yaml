@@ -20,11 +20,20 @@ blueprint:
       description: The detection algorithm will run in every defined seconds
       default: 5
       selector:
-        number:
-          min: 1
-          max: 60
-          mode: box
-          unit_of_measurement: seconds
+        select:
+          options:
+            - label: Every second
+              value: "/1"
+            - label: Every 5 seconds
+              value: "/5"
+            - label: Every 10 seconds
+              value: "/10"
+            - label: Every 30 seconds
+              value: "/30"
+            - label: Every 60 seconds
+              value: "/60"
+          multiple: false
+          mode: dropdown
     auto_turn_on_light:
       name: Automatically Turn On Printer Lights
       description: Turns on printer lights before spaghetti detection operation
