@@ -18,7 +18,6 @@ blueprint:
     detection_frequency:
       name: Detection Frequency
       description: The detection algorithm will run in every defined seconds
-      default: 5
       selector:
         select:
           options:
