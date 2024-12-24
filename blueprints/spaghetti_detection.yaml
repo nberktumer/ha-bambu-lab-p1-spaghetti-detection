@@ -31,7 +31,7 @@ blueprint:
             - label: Every 30 seconds
               value: "/30"
             - label: Every 60 seconds
-              value: "/60"
+              value: "/59"
           multiple: false
           mode: dropdown
     auto_turn_on_light:
