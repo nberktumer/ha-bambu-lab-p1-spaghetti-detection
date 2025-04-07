@@ -255,7 +255,7 @@ action:
               - stop: ""
           - if:
               - condition: template
-                value_template: "{{ now().second % DETECTION_FREQUENCY_VAR > 0 }}"
+                value_template: "{{ now().second % DETECTION_FREQUENCY_VAR | replace(''/'', '''') | int > 0 }}"
             then:
               - stop: ""
           - if:
