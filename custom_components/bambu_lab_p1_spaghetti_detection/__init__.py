@@ -6,8 +6,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 
-DOMAIN = "bambu_lab_p1_spaghetti_detection"
-BRAND = "Bambu Lab P1 - Spaghetti Detection"
+from .const import (
+    DOMAIN,
+    BRAND,
+)
 
 LOGGER = logging.getLogger(__package__)
 
