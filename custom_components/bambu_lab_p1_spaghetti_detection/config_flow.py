@@ -6,7 +6,9 @@ from typing import Any
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
 
-from custom_components.bambu_lab_p1_spaghetti_detection import DOMAIN
+from .const import (
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
